@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>晓观潮 · 中南财经政法大学信息聚合</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   晓观潮 · 江南书斋美学
+   钟声渡晓南 · 七日一巡来
+   ══════════════════════════════════════════ */
+
+:root {
+  --ink: #1a1a1a;
+  --ink-light: #5a5550;
+  --ink-faint: #a0988c;
+  --paper: #faf6f0;
+  --paper-card: #fffef9;
+  --paper-dark: #efe9de;
+  --gold: #b8934e;
+  --gold-bright: #c4a35a;
+  --gold-ghost: rgba(184,147,78,0.12);
+  --cinnabar: #8b2500;
+  --deep-blue: #1e3a5f;
+  --border: transparent;
+  --border-light: transparent;
+  --shadow: 0 1px 4px rgba(26,26,26,0.04);
+  --shadow-hover: 0 2px 12px rgba(26,26,26,0.06);
+  --radius: 3px;
+  --radius-pill: 20px;
+  --font-display: 'Noto Serif SC', 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+[data-theme="dark"] {
+  --ink: #d4cfc7;
+  --ink-light: #a09888;
+  --ink-faint: #706860;
+  --paper: #1c1a18;
+  --paper-card: #24211d;
+  --paper-dark: #2a2722;
+  --gold: #c4a35a;
+  --gold-bright: #d4b96a;
+  --gold-ghost: rgba(196,163,90,0.15);
+  --cinnabar: #d4583a;
+  --deep-blue: #5a8fbf;
+  --border: transparent;
+  --border-light: transparent;
+  --shadow: 0 1px 4px rgba(0,0,0,0.12);
+  --shadow-hover: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.7;
+  min-height: 100vh;
+  transition: background 0.4s, color 0.4s;
+}
+
+/* ── 头部 · 匾额 ── */
+.header {
+  background: #152535;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+}
+[data-theme="dark"] .header { background: #141210; }
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 8px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.header h1 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 8px;
+}
+.header h1 .gold { color: var(--gold-bright); }
+.tagline {
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 4px;
+  font-style: italic;
+}
+.header-right { display:flex; align-items:center; gap:10px; }
+.last-update { font-size: 11px; color: rgba(255,255,255,0.5); font-family: var(--font-display); }
+
+.btn-icon {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex; align-items:center; justify-content:center;
+  transition: all 0.25s;
+  font-family: var(--font-body);
+}
+.btn-icon:hover { background: rgba(255,255,255,0.15); }
+
+.btn-refresh {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: var(--font-display);
+  letter-spacing: 2px;
+  transition: all 0.25s;
+  display: flex; align-items:center; gap: 5px;
+}
+.btn-refresh:hover { background: rgba(255,255,255,0.18); }
+.btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-refresh .icon { font-size: 16px; display: inline-block; }
+.btn-refresh.spinning .icon { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── 刷新横幅 ── */
+.refresh-banner {
+  display: none; background: var(--gold-ghost); color: var(--gold);
+  text-align: center; padding: 6px; font-size: 12px;
+  font-family: var(--font-display); letter-spacing: 1px;
+}
+.refresh-banner.show { display: block; }
+.refresh-banner .spinner-sm {
+  display: inline-block; width: 12px; height: 12px;
+  border: 2px solid rgba(184,147,78,0.3); border-top-color: var(--gold);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+  vertical-align: middle; margin-right: 6px;
+}
+
+/* ── 工具栏 ── */
+.sticky-toolbar {
+  position: sticky; top: 52px; z-index: 89;
+  background: var(--paper); padding: 10px 0 6px;
+  transition: background 0.4s;
+}
+.filter-ribbon {
+  max-width: 1280px; margin: 0 auto; padding: 8px 32px;
+  display: flex; align-items: center; gap: 0; flex-wrap: nowrap;
+}
+.cat-scroll {
+  flex: 1;
+  display: flex; gap: 8px; align-items: center;
+  justify-content: flex-start;
+  padding: 2px 0;
+}
+.cat-pill {
+  background: var(--paper-card);
+  padding: 5px 10px; border-radius: var(--radius-pill);
+  cursor: pointer; font-size: 12px; font-weight: 500;
+  font-family: var(--font-display); letter-spacing: 0.5px;
+  color: var(--ink-light); transition: all 0.2s;
+  white-space: nowrap; border: none; box-shadow: var(--shadow);
+  flex-shrink: 1; min-width: 0;
+}
+.cat-pill:hover { color: var(--ink); box-shadow: var(--shadow-hover); }
+.cat-pill.active {
+  background: var(--deep-blue); color: #fff;
+}
+[data-theme="dark"] .cat-pill.active {
+  background: var(--gold); color: #1c1a18;
+}
+.cat-pill .count { font-size: 10px; opacity: 0.7; font-family: var(--font-body); margin-left: 3px; }
+
+/* ── 来源下拉 ── */
+.src-dropdown {
+  flex-shrink: 0; margin-left: 14px; padding-left: 14px; position: relative;
+  border-left: 1px solid rgba(184,147,78,0.4);
+}
+.src-btn {
+  background: var(--paper-card);
+  padding: 5px 10px; border-radius: var(--radius-pill);
+  cursor: pointer; font-size: 12px; font-weight: 500;
+  font-family: var(--font-display); letter-spacing: 0.5px;
+  color: var(--ink-light); transition: all 0.2s; white-space: nowrap;
+  border: none; box-shadow: var(--shadow);
+}
+.src-btn::after { content: " ▾"; opacity: 0.4; font-size: 10px; }
+.src-btn:hover { color: var(--ink); box-shadow: var(--shadow-hover); }
+.src-btn.active { background: var(--deep-blue); color: #fff; }
+[data-theme="dark"] .src-btn.active { background: var(--gold); color: #1c1a18; }
+.src-menu {
+  display: none; position: absolute; top: 100%; right: 0; margin-top: 6px;
+  background: var(--paper-card); border: 1px solid var(--border);
+  border-radius: 4px; box-shadow: var(--shadow-hover);
+  z-index: 100; max-height: 340px; overflow-y: auto;
+  min-width: 170px; padding: 6px;
+}
+.src-menu.show { display: block; }
+.src-item {
+  display: block; width: 100%; text-align: left;
+  background: none; border: none;
+  padding: 7px 12px; border-radius: 2px;
+  cursor: pointer; font-size: 13px;
+  font-family: var(--font-body); color: var(--ink-light);
+  transition: all 0.15s;
+}
+.src-item:hover { background: var(--paper-dark); }
+.src-item.active { background: var(--gold-ghost); color: var(--gold); font-weight: 500; }
+
+/* ── 搜索栏 ── */
+.search-bar {
+  max-width: 1280px; margin: 6px auto 0;
+  padding: 10px 20px; display: flex; gap: 10px; align-items: center;
+  background: var(--paper-card); box-shadow: var(--shadow); border-radius: 8px;
+}
+.search-bar span { color: var(--ink-faint); font-size: 14px; }
+.search-bar input {
+  flex: 1; border: none; outline: none;
+  font-size: 14px; font-family: var(--font-body);
+  color: var(--ink); background: transparent;
+}
+.search-bar input::placeholder { color: var(--ink-faint); font-family: var(--font-display); font-style: italic; }
+
+/* ── 筛选状态 ── */
+.active-filters {
+  max-width: 1280px; margin: 0 auto;
+  padding: 6px 32px; font-size: 12px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-family: var(--font-display);
+}
+.active-filters > span:first-child { color: var(--ink-faint); }
+.filter-chip {
+  padding: 2px 10px; border-radius: 10px; font-size: 11px;
+  background: var(--gold-ghost); color: var(--gold);
+}
+.filter-clear {
+  background: none; border: none; color: var(--ink-faint);
+  cursor: pointer; font-size: 11px; font-family: inherit;
+  padding: 1px 6px; border-radius: 2px;
+}
+.filter-clear:hover { color: var(--cinnabar); background: rgba(139,37,0,0.06); }
+
+/* ── 主布局 ── */
+.main {
+  max-width: 1280px; margin: 0 auto; padding: 20px 32px 32px;
+  display: grid; grid-template-columns: 1fr 260px; gap: 28px;
+  min-height: calc(100vh - 280px);
+}
+
+/* ── 文章列表 ── */
+.content { min-height: 60vh; }
+.article-card {
+  background: var(--paper-card);
+  padding: 20px 24px; margin-bottom: 10px;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.article-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+.article-card:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.cat-pill:focus-visible, .src-btn:focus-visible, .btn-refresh:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+.article-card .title {
+  font-family: var(--font-display); font-size: 17px; font-weight: 500;
+  color: var(--ink); margin-bottom: 12px; line-height: 1.75;
+  letter-spacing: 0;
+  text-wrap: pretty;
+}
+.article-card .meta {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 12px; color: var(--ink-faint); flex-wrap: wrap;
+  font-family: var(--font-display);
+}
+.meta .tag {
+  display: inline-block; padding: 1px 9px; border-radius: 10px;
+  font-size: 11px; font-family: var(--font-display);
+}
+.tag-news { background: #e8f0f8; color: #3a6898; }
+.tag-notice { background: #f0ece8; color: #8a7060; }
+.tag-lecture { background: #f8f0e8; color: #a87040; }
+.tag-job { background: #f8e8e8; color: #a84040; }
+.tag-other { background: var(--paper-dark); color: var(--ink-light); }
+[data-theme="dark"] .tag-news { background:rgba(58,104,152,0.2); color:#7ab8f0; }
+[data-theme="dark"] .tag-notice { background:rgba(138,112,96,0.2); color:#c0a088; }
+[data-theme="dark"] .tag-lecture { background:rgba(168,112,64,0.2); color:#d0a060; }
+[data-theme="dark"] .tag-job { background:rgba(168,64,64,0.2); color:#e08080; }
+[data-theme="dark"] .tag-other { background:var(--paper-dark); color:var(--ink-light); }
+
+.article-card .meta .source { color: var(--ink-light); }
+.article-card .meta .date { color: var(--ink-faint); }
+.article-card .meta .visit-link {
+  margin-left: auto; color: var(--deep-blue); text-decoration: none;
+  font-weight: 500; opacity: 0; transition: opacity 0.2s; font-size: 12px;
+}
+.article-card:hover .visit-link { opacity: 1; }
+[data-theme="dark"] .article-card .meta .visit-link { color: var(--gold-bright); }
+
+/* ── 右栏 ── */
+.right-panel { align-self: start; position: sticky; top: 170px; }
+.panel-card {
+  background: var(--paper-card);
+  padding: 18px; margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.panel-card h3 {
+  font-family: var(--font-display); font-size: 13px; letter-spacing: 2px;
+  color: var(--ink-faint); margin-bottom: 12px; font-weight: 600;
+}
+.dist-summary {
+  display: flex; gap: 10px; align-items: center;
+  font-family: var(--font-display); font-size: 12px;
+  color: var(--ink-light); margin-bottom: 6px;
+}
+.dist-summary b { color: var(--deep-blue); font-size: 14px; }
+[data-theme="dark"] .dist-summary b { color: var(--gold-bright); }
+.dist-sep { color: var(--ink-faint); }
+.dist-divider { height: 1px; background: var(--border-light); margin: 6px 0 10px; }
+
+.intro-text {
+  font-family: var(--font-display); font-size: 12px; line-height: 1.8;
+  color: var(--ink-light); margin-bottom: 14px; font-style: italic;
+}
+.stat-item {
+  display: flex; justify-content: space-between;
+  padding: 5px 0; font-size: 13px; font-family: var(--font-display);
+}
+.stat-item .label { color: var(--ink-light); }
+.stat-item .value { font-weight: 600; color: var(--deep-blue); }
+[data-theme="dark"] .stat-item .value { color: var(--gold-bright); }
+
+/* ── 页脚 ── */
+.footer {
+  text-align: center; padding: 24px 32px; font-size: 12px;
+  color: var(--ink-faint); font-family: var(--font-display);
+  letter-spacing: 2px;
+}
+.footer a { color: var(--deep-blue); text-decoration: none; }
+[data-theme="dark"] .footer a { color: var(--gold-bright); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--deep-blue); color: #fff;
+  padding: 12px 24px; border-radius: 4px; font-size: 13px;
+  font-family: var(--font-display); letter-spacing: 1px;
+  box-shadow: var(--shadow-hover);
+  opacity: 0; transform: translateY(16px);
+  transition: all 0.3s; z-index: 200;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.warning { background: #8a6040; }
+.toast.error { background: var(--cinnabar); }
+
+/* ── 加载/空状态 ── */
+.loading { text-align: center; padding: 80px 20px; color: var(--ink-faint); font-family: var(--font-display); }
+.loading .spinner {
+  display: inline-block; width: 28px; height: 28px;
+  border: 2px solid var(--paper-dark); border-top-color: var(--gold);
+  border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;
+}
+.empty-state { text-align: center; padding: 80px 20px; color: var(--ink-faint); font-family: var(--font-display); }
+.empty-state .icon { font-size: 40px; margin-bottom: 10px; }
+
+/* ── 自定义悬浮框 ── */
+.zuel-tooltip {
+  position: fixed; z-index: 9999;
+  background: var(--paper-card); color: var(--ink);
+  font-family: var(--font-display); font-size: 12px;
+  padding: 6px 12px; border-radius: 4px;
+  box-shadow: var(--shadow-hover);
+  pointer-events: none; opacity: 0;
+  transition: opacity 0.15s;
+  border: 1px solid var(--gold);
+  max-width: 220px; line-height: 1.6;
+}
+.zuel-tooltip.show { opacity: 1; }
+
+/* ── 响应式 ── */
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  .right-panel { display: none; }
+}
+@media (max-width: 640px) {
+  .header-inner, .filter-ribbon, .main { padding-left: 16px; padding-right: 16px; }
+  .header h1 { font-size: 18px; letter-spacing: 3px; }
+  .tagline { display: none; }
+  .article-card .meta .visit-link { opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- 头部 -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <h1>晓<span class="gold">观</span>潮</h1>
+      <div class="tagline">钟声渡晓南 · 七日一巡来</div>
+    </div>
+    <div class="header-right">
+      <span class="last-update" id="lastUpdate">加载中…</span>
+      <button class="btn-icon" id="btnTheme" onclick="toggleTheme()" title="朝夕切换">🌙</button>
+      <button class="btn-refresh" id="btnRefresh" onclick="refreshData()">
+        <span class="icon">↻</span> 巡览
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- 刷新横幅 -->
+<div class="refresh-banner" id="refreshBanner">
+  <span class="spinner-sm"></span><span id="refreshMsg">巡览中，诸站遍访需时，静候片刻…</span>
+</div>
+
+<!-- 工具栏 -->
+<div class="sticky-toolbar">
+  <div class="filter-ribbon">
+    <div class="cat-scroll" id="categoryList"></div>
+    <div class="src-dropdown" id="srcDropdown">
+      <button class="src-btn" onclick="toggleSrcMenu()">🏷️ 来源</button>
+      <div class="src-menu" id="srcMenu"></div>
+    </div>
+  </div>
+  <div class="search-bar">
+    <span>🔍</span>
+    <input type="text" id="searchInput" placeholder="搜文索字…" oninput="debounceSearch()">
+  </div>
+  <div class="active-filters" id="activeFilters" style="display:none">
+    <span>当前：</span>
+    <span class="filter-chip" id="chipCategory"></span>
+    <span class="filter-chip" id="chipSource"></span>
+    <button class="filter-clear" onclick="clearFilters()">✕ 清</button>
+  </div>
+</div>
+
+<!-- 主区 -->
+<div class="main">
+  <main class="content">
+    <div id="articleList"></div>
+  </main>
+  <aside class="right-panel">
+    <div class="panel-card">
+      <h3>🏯 概览</h3>
+      <div class="intro-text">晓观潮者，中南大七日内各官网消息之汇聚也。</div>
+      <div class="stat-item"><span class="label">今日</span><span class="value" id="statDate">-</span></div>
+      <div class="stat-item"><span class="label">农历</span><span class="value" id="statLunar">-</span></div>
+      <div class="stat-item"><span class="label" data-tooltip="巡潮代表7日内信息量">巡潮</span><span class="value" id="statTide" data-tooltip="巡潮代表7日内信息量">-</span></div>
+    </div>
+    <div class="panel-card">
+      <h3>📈 数据分布</h3>
+      <div class="dist-summary">
+        <span>今存 <b id="distTotal">0</b></span>
+        <span class="dist-sep">|</span>
+        <span>诸类 <b id="distCats">0</b></span>
+      </div>
+      <div class="dist-divider"></div>
+      <div id="categoryDist"></div>
+    </div>
+  </aside>
+</div>
+
+<!-- 页脚 -->
+<div class="footer">
+  钟声渡晓南 · 七日一巡来 &nbsp;|&nbsp; v{{ version }} · {{ author }} &nbsp;|&nbsp;
+  <a href="https://www.zuel.edu.cn" target="_blank">中南大官网</a>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 全局状态 ──
+let allArticles = [];
+let currentCategory = "";
+let currentSource = "";
+let isRefreshing = false;
+let refreshPollTimer = null;
+
+// ── 深色模式 ──
+(function(){
+  const h = new Date().getHours();
+  const saved = localStorage.getItem('zuel-theme');
+  const theme = saved || (h >= 17 || h < 6 ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('btnTheme').textContent = theme === 'dark' ? '☀️' : '🌙';
+})();
+function toggleTheme(){
+  const html = document.documentElement;
+  const cur = html.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('zuel-theme', next);
+  document.getElementById('btnTheme').textContent = next === 'dark' ? '☀️' : '🌙';
+}
+
+// ── 图标 ──
+function getCategoryIcon(cat){
+  const m = {"综合新闻":"🏛️","通知公告":"📋","教科动态":"📖","讲座预告":"🎤","师生远方":"👤","党建工作":"🚩","规章制度":"📜","就业招聘":"💼","志愿服务":"❤️"};
+  return m[cat]||"📄";
+}
+function getTagClass(cat){
+  const m = {"综合新闻":"tag-news","通知公告":"tag-notice","教科动态":"tag-notice","讲座预告":"tag-lecture","师生远方":"tag-news","党建工作":"tag-lecture","规章制度":"tag-other","就业招聘":"tag-job","志愿服务":"tag-news"};
+  return m[cat]||"tag-other";
+}
+function formatDate(ds){
+  if(!ds) return ""; if(ds==="近日") return "近日";
+  const d = ds.replace(/\//g,"-");
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d)){
+    const n = new Date();
+    const today = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+    const y = new Date(n); y.setDate(y.getDate()-1);
+    const ystr = `${y.getFullYear()}-${String(y.getMonth()+1).padStart(2,'0')}-${String(y.getDate()).padStart(2,'0')}`;
+    if(d===today) return "今日"; if(d===ystr) return "昨日";
+    return d;
+  }
+  return ds;
+}
+
+function showToast(msg, type){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(function(){t.classList.remove('show')}, 3000);
+}
+
+// ── 加载文章 ──
+async function loadArticles(){
+  document.getElementById('articleList').innerHTML = '<div class="loading"><div class="spinner"></div>展卷中…</div>';
+  try {
+    const p = new URLSearchParams();
+    if(currentCategory) p.set('category', currentCategory);
+    if(currentSource) p.set('source', currentSource);
+    const s = document.getElementById('searchInput').value.trim();
+    if(s) p.set('search', s);
+    const r = await fetch('/api/articles?'+p);
+    const d = await r.json();
+    allArticles = d.articles;
+    renderArticles(d);
+    document.getElementById('lastUpdate').textContent = '巡于 '+(d.last_update||'未知');
+  } catch(e){
+    document.getElementById('articleList').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div>残卷难展</div>';
+  }
+}
+
+function renderArticles(data){
+  const list = document.getElementById('articleList');
+  const arts = data.articles;
+  if(!arts||!arts.length){
+    list.innerHTML = '<div class="empty-state"><div class="icon">🏮</div>简讯待巡</div>'; return;
+  }
+  list.innerHTML = arts.map(function(a){
+    return '<div class="article-card" onclick="window.open(\''+a.url+'\',\'_blank\')">'
+      +'<div class="title">'+esc(a.title)+'</div>'
+      +'<div class="meta">'
+        +'<span class="tag '+getTagClass(a.category)+'">'+getCategoryIcon(a.category)+' '+(a.category||'通知公告')+'</span>'
+        +'<span class="source">'+esc(a.source||'')+'</span>'
+        +'<span class="date">'+formatDate(a.date)+'</span>'
+        +'<a class="visit-link" href="'+a.url+'" target="_blank" onclick="event.stopPropagation()">展卷 →</a>'
+      +'</div></div>';
+  }).join('');
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];}); }
+
+// ── 加载统计 ──
+async function loadCategories(){
+  try {
+    const p = new URLSearchParams();
+    if(currentSource) p.set('source', currentSource);
+    const r = await fetch('/api/stats'+(p.toString()?'?'+p:''));
+    const s = await r.json();
+    const cc = document.getElementById('categoryList');
+    const cd = document.getElementById('categoryDist');
+    var counts = s.categories || {};
+    var cats = Object.keys(counts).filter(function(c){return counts[c]>0;}).sort(function(a,b){return counts[b]-counts[a];});
+    var ch='<button class="cat-pill'+(currentCategory?'':' active')+'" data-category="" onclick="filterByCategory(this,\'\')">全部<span class="count">'+s.total+'</span></button>';
+    var dh='';
+    cats.forEach(function(cat){
+      var cnt = counts[cat];
+      var pct = s.total>0 ? Math.round(cnt/s.total*100) : 0;
+      ch += '<button class="cat-pill" data-category="'+cat+'" onclick="filterByCategory(this,\''+cat+'\')">'+getCategoryIcon(cat)+' '+cat+' <span class="count">'+cnt+'</span></button>';
+      dh += '<div class="stat-item"><span class="label">'+getCategoryIcon(cat)+' '+cat+'</span><span class="value">'+cnt+' ('+pct+'%)</span></div>';
+    });
+    cc.innerHTML = ch;
+    cd.innerHTML = dh;
+    var ca = document.getElementById('countAll'); if(ca) ca.textContent = s.total;
+    // 日期 + 农历（API重试5次，查表兜底）+ 巡潮
+    var now = new Date();
+    var m = now.getMonth()+1, d = now.getDate();
+    document.getElementById('statDate').textContent = now.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;
+    function tryLunarAPI(n){
+      if(n<=0){
+        document.getElementById('statLunar').textContent = getLunar(now.getFullYear(),m,d) + (getJieqi(m,d)?' · '+getJieqi(m,d):'');
+        return;
+      }
+      var apiUrl = 'https://cn.apihz.cn/api/time/getzdday.php?id=10017827&key=658c5104889d7b1fd033972b12ec1285&nian='+now.getFullYear()+'&yue='+(now.getMonth()+1)+'&ri='+now.getDate();
+      fetch(apiUrl)
+        .then(function(r){return r.json()}).then(function(ld){
+          if(ld.code==200){
+            document.getElementById('statLunar').textContent = ld.nyue+ld.nri+((function(jq,jn){if(!jq||!jn||jn=='无')return'';if(jn==jq||jn==jq+'第一天'||jn==jq+'第1天'||jn=='节气')return' · '+(jq=='冬至'?'❄️':'')+jq;return''})(ld.jieqi,ld.JIEQICN))+(function(e,j){return j?' · '+(e||'')+j:''})(getJieriEmoji(ld.jieri),ld.jieri!='无'?ld.jieri:'');
+          } else { tryLunarAPI(n-1); }
+        }).catch(function(){ tryLunarAPI(n-1); });
+    }
+    tryLunarAPI(5);
+    var t = getTide(s.total);
+    document.getElementById('statTide').innerHTML = t.icon+' '+t.level;
+    document.getElementById('statTide').style.color = t.color;
+    document.getElementById('distTotal').textContent = s.total;
+    document.getElementById('distCats').textContent = Object.keys(s.categories||{}).length;
+    loadSources();
+  }catch(e){}
+}
+
+async function loadSources(){
+  try {
+    const r = await fetch('/api/sources');
+    const ss = await r.json();
+    const all = new Set();
+    Object.values(ss).forEach(function(arr){arr.forEach(function(s){all.add(s)})});
+    document.getElementById('srcMenu').innerHTML = Array.from(all).map(function(s){
+      return '<button class="src-item'+(currentSource===s?' active':'')+'" onclick="filterBySource(\''+s.replace(/'/g,"\\'")+'\')">'+s+'</button>';
+    }).join('');
+  }catch(e){}
+}
+
+// ── 筛选 ──
+function updateActiveFilters(){
+  var c = document.getElementById('activeFilters');
+  var ca = document.getElementById('chipCategory');
+  var cs = document.getElementById('chipSource');
+  var show = false;
+  if(currentCategory){ ca.textContent = getCategoryIcon(currentCategory)+' '+currentCategory; ca.style.display='inline-block'; show=true; }
+  else{ ca.style.display='none'; }
+  if(currentSource){ cs.textContent = '📌 '+currentSource; cs.style.display='inline-block'; show=true; }
+  else{ cs.style.display='none'; }
+  c.style.display = show?'flex':'none';
+}
+
+function filterByCategory(btn, cat){
+  if(cat===''){
+    document.querySelectorAll('.cat-pill').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active'); currentCategory=''; updateActiveFilters(); loadArticles(); return;
+  }
+  if(currentCategory===cat){
+    btn.classList.remove('active'); currentCategory='';
+    var ab = document.querySelector('.cat-pill[data-category=""]');
+    if(ab) ab.classList.add('active');
+    updateActiveFilters(); loadArticles(); return;
+  }
+  document.querySelectorAll('.cat-pill').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active'); currentCategory=cat; updateActiveFilters(); loadArticles();
+}
+
+function toggleSrcMenu(){ document.getElementById('srcMenu').classList.toggle('show'); }
+
+function filterBySource(source){
+  if(currentSource===source){
+    currentSource=''; document.getElementById('srcMenu').classList.remove('show');
+    document.querySelector('.src-btn').classList.remove('active');
+    updateActiveFilters(); loadArticles(); loadCategories(); return;
+  }
+  currentSource=source; document.getElementById('srcMenu').classList.remove('show');
+  document.querySelector('.src-btn').classList.add('active');
+  updateActiveFilters(); loadArticles(); loadCategories();
+}
+
+function clearFilters(){
+  document.querySelectorAll('.cat-pill').forEach(function(b){b.classList.remove('active')});
+  var ab = document.querySelector('.cat-pill[data-category=""]');
+  if(ab) ab.classList.add('active');
+  currentCategory=''; currentSource='';
+  document.querySelector('.src-btn').classList.remove('active');
+  updateActiveFilters(); loadArticles(); loadCategories();
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.src-dropdown')) document.getElementById('srcMenu').classList.remove('show');
+});
+
+// ── 搜索 ──
+var searchTimer;
+function debounceSearch(){ clearTimeout(searchTimer); searchTimer = setTimeout(loadArticles, 300); }
+
+// ── 刷新 ──
+async function refreshData(){
+  if(isRefreshing){ showToast('巡览中，请稍候…','warning'); return; }
+  var btn = document.getElementById('btnRefresh');
+  var banner = document.getElementById('refreshBanner');
+  btn.disabled = true; btn.classList.add('spinning'); banner.classList.add('show');
+  try {
+    var r = await fetch('/api/refresh',{method:'POST'});
+    var d = await r.json();
+    if(d.status==='busy'){ showToast('巡览中，请稍候…','warning'); btn.disabled=false; btn.classList.remove('spinning'); banner.classList.remove('show'); return; }
+    isRefreshing = true;
+    showToast('诸站巡览中，约需片刻…','warning');
+    refreshPollTimer = setInterval(async function(){
+      var r = await fetch('/api/refresh-status'); var d = await r.json();
+      if(!d.is_refreshing){ clearInterval(refreshPollTimer); isRefreshing=false; btn.disabled=false; btn.classList.remove('spinning'); banner.classList.remove('show');
+        var s = d.summary||{};
+        var msg = '巡毕';
+        if(s.added!=null) msg += ' · 迎新'+s.added;
+        if(s.deleted!=null&&s.deleted>0) msg += ' · 除旧'+s.deleted;
+        msg += ' · 今存'+s.total;
+        showToast(msg); loadArticles(); loadCategories(); }
+    },2000);
+  }catch(e){
+    showToast('巡览有阻','error'); isRefreshing=false; btn.disabled=false; btn.classList.remove('spinning'); banner.classList.remove('show');
+  }
+}
+
+// ── 节日emoji ──
+function getJieriEmoji(jr){
+  if(!jr) return '';
+  if(/春节|除夕|小年|大年|元宵|腊八|小年/.test(jr)) return '🏮';
+  if(/端午/.test(jr)) return '🐉';
+  if(/清明/.test(jr)) return '🍃';
+  if(/七夕/.test(jr)) return '❤️';
+  if(/中元/.test(jr)) return '🕯️';
+  if(/中秋/.test(jr)) return '🥮';
+  if(/重阳/.test(jr)) return '🌄';
+  if(/冬至/.test(jr)) return '❄️';
+  return '';
+}
+
+// ── 农历（1900-2100 查找表，准确） ──
+var lunarInfo = [0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a4d0,0x0d150,0x0f252,0x0d520];
+var lunarMonths = ['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+var lunarDays = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+function lunarYearDays(y){ var s=0,m=0x8000; for(var i=0;i<12;i++){ s+=(lunarInfo[y-1900]&m)?30:29; m>>=1; } return s+lunarLeapDays(y); }
+function lunarLeapMonth(y){ var d=lunarInfo[y-1900]&0xf; return d?d:0; }
+function lunarLeapDays(y){ if(lunarLeapMonth(y)) return (lunarInfo[y-1900]&0x10000)?30:29; return 0; }
+function monthDays(y,m){ return (lunarInfo[y-1900]&(0x10000>>m))?30:29; }
+function getLunar(y,m,d){
+  var base=new Date(1900,0,31), offset=Math.floor((new Date(y,m-1,d)-base)/86400000);
+  var ly=1900,ld=0,lm,leap=false,daysInYear=lunarYearDays(ly);
+  while(offset>=daysInYear){ offset-=daysInYear; ly++; daysInYear=lunarYearDays(ly); }
+  var leapM=lunarLeapMonth(ly), isLeap=false;
+  for(lm=1;lm<=12&&offset>0;lm++){
+    if(leapM&&lm===leapM+1&&!isLeap){ lm--; isLeap=true; ld=lunarLeapDays(ly); }
+    else{ ld=monthDays(ly,lm); isLeap=false; }
+    if(offset>=ld) offset-=ld; else break;
+  }
+  return lunarMonths[lm-1]+'月'+lunarDays[offset];
+}
+// ── 节气 ──
+var jieqiNames = ['小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至'];
+var jieqiDates = [
+  '0105','0120','0204','0219','0306','0321','0405','0420','0505','0521','0606','0622','0707','0723','0807','0823','0908','0923','1008','1023','1107','1122','1207','1222'
+]; // 近似日期（±1天），够用
+function getJieqi(m,d){
+  var md = (m<10?'0':'')+m+(d<10?'0':'')+d;
+  var best=-1, bestDiff=99;
+  for(var i=0;i<24;i++){
+    var diff = Math.abs(parseInt(md)-parseInt(jieqiDates[i]));
+    if(diff<bestDiff){ bestDiff=diff; best=i; }
+  }
+  return bestDiff<=2 ? jieqiNames[best] : '';
+}
+
+function getTide(n){
+  if(n>=350) return {level:'风暴潮',icon:'🌊',color:'var(--cinnabar)'};
+  if(n>=200) return {level:'巨潮',icon:'🌊',color:'#c05830'};
+  if(n>=100) return {level:'大潮',icon:'🌊',color:'#b8934e'};
+  if(n>=50) return {level:'中潮',icon:'🌊',color:'var(--deep-blue)'};
+  return {level:'小潮',icon:'🌊',color:'var(--ink-faint)'};
+}
+
+// ── 自定义悬浮框 ──
+(function(){
+  var tip = document.createElement('div');
+  tip.className = 'zuel-tooltip';
+  document.body.appendChild(tip);
+  document.addEventListener('mouseover',function(e){
+    var el = e.target.closest('[data-tooltip]');
+    if(!el){ tip.classList.remove('show'); return; }
+    tip.textContent = el.getAttribute('data-tooltip');
+    var r = el.getBoundingClientRect();
+    tip.style.left = r.left + 'px';
+    tip.style.top = (r.bottom + 4) + 'px';
+    tip.classList.add('show');
+  });
+  document.addEventListener('mouseout',function(e){
+    if(e.target.closest('[data-tooltip]')) tip.classList.remove('show');
+  });
+})();
+
+// ── 启 ──
+// 启动时立即调农历API（5次重试）
+(function initLunar(){
+  var n=new Date(),m=n.getMonth()+1,d=n.getDate();
+  document.getElementById('statDate').textContent = n.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d;
+  function tryLunarInit(n){
+    if(n<=0){ document.getElementById('statLunar').textContent = getLunar(n.getFullYear(),m,d); return; }
+    fetch('https://cn.apihz.cn/api/time/getday.php?id=10017827&key=658c5104889d7b1fd033972b12ec1285')
+      .then(function(r){return r.json()}).then(function(ld){
+        if(ld.code==200) document.getElementById('statLunar').textContent = ld.nyue+ld.nri+((function(jq,jn){if(!jq||!jn||jn=='无')return'';if(jn==jq||jn==jq+'第一天'||jn==jq+'第1天'||jn=='节气')return' · '+(jq=='冬至'?'❄️':'')+jq;return''})(ld.jieqi,ld.JIEQICN))+(function(e,j){return j?' · '+(e||'')+j:''})(getJieriEmoji(ld.jieri),ld.jieri!='无'?ld.jieri:'');
+        else tryLunarInit(n-1);
+      }).catch(function(){ tryLunarInit(n-1); });
+  }
+  tryLunarInit(5);
+  // 加载缓存和农历
+  loadArticles();
+  loadCategories();
+})();
+document.addEventListener('visibilitychange',function(){ if(!document.hidden){ loadArticles(); loadCategories(); } });
+</script>
+</body>
+</html>
