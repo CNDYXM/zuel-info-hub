@@ -188,17 +188,32 @@ async def crawl_one(crawler, src, i, total):
 
 
 async def crawl_all(sources, output_path):
-    """Crawl4AI 并行批量抓取（6路并发）"""
+    """Crawl4AI 并行批量抓取（6路并发），初始化失败自动降级 BS"""
     from crawl4ai import AsyncWebCrawler
 
     now = datetime.now()
     cutoff = now - timedelta(days=7)
     total = len(sources)
-    print(f"\n[{now.strftime('%H:%M:%S')}] Crawl4AI 全并行抓取 {total} 个站点...\n")
 
-    async with AsyncWebCrawler(verbose=False) as crawler:
-        tasks = [crawl_one(crawler, src, i, total) for i, src in enumerate(sources, 1)]
-        all_results = await asyncio.gather(*tasks)
+    try:
+        print(f"\n[{now.strftime('%H:%M:%S')}] Crawl4AI 全并行抓取 {total} 个站点...\n")
+        async with AsyncWebCrawler(verbose=False) as crawler:
+            tasks = [crawl_one(crawler, src, i, total) for i, src in enumerate(sources, 1)]
+            all_results = await asyncio.gather(*tasks)
+    except Exception as e:
+        print(f"\n⚠️  Crawl4AI 不可用: {e}")
+        print(f"   🔻 降级为纯 BS 模式（按序抓取）...\n")
+        all_results = []
+        for i, src in enumerate(sources, 1):
+            name = src["name"]
+            soup = bs_fetch(src["url"])
+            if soup:
+                articles = bs_extract_links(soup, src["url"], name, src["category"])
+                print(f"  [{i}/{total}] {name} ✅ BS {len(articles)} 条")
+                all_results.append((name, articles))
+            else:
+                print(f"  [{i}/{total}] {name} ❌ 无法访问")
+                all_results.append((name, []))
 
     results = {}
     all_articles = []
